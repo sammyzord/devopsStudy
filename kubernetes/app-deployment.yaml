@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hono-api-deployment # name of the deployment
+  labels:
+    app: hono-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hono-api-pod # defines which pods are controlled by deployment
+  template:
+    metadata:
+      labels:
+        app: hono-api-pod # labels created pods correctly
+    spec:
+      containers:
+        - name: hono-api-container
+          image: hono-api-img
+          imagePullPolicy: Never
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "0.1"
+            limits:
+              memory: "512Mi"
+              cpu: "0.5"
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: hono-api-secrets
+                  key: DB_HOST
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: hono-api-secrets
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hono-api-secrets
+                  key: DB_PASSWORD
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: hono-api-secrets
+                  key: DB_PORT
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: hono-api-secrets
+                  key: DB_NAME
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hono-api-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: hono-api-pod # connects to pods
+  ports:
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hono-api-loadbalancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: hono-api-pod # connects to pods
+  ports:
+  - port: 8000
+    targetPort: 8000
+    nodePort: 30002
+
