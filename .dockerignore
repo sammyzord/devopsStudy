@@ -1,3 +1,15 @@
 .env
 .vscode
+.terraform
 .env.sample
+lambda
+kubernetes
+terraform
+**.tf
+terraform.tfstate
+terraform.tfstate.backup
+terraform.lock.hcl
+Dockerfile
+docker-compose.yaml
+.gitignore
+lambda_function.tf
